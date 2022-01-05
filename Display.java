@@ -11,43 +11,46 @@ public class Display extends Canvas implements Runnable{
 
     private Thread thread;
     private JFrame frame;
-    private BufferStrategy bs;
-    private Graphics g;
 
-    private static final int WIDTH = 800;
-    private static final int HEIGHT = 600;
+    private Tetrahedron tetra;
 
     private static boolean running = false;
 
     private void render(){
 
-        this.bs = this.getBufferStrategy(); // the mechanism with which to organize complex memory on a particular Canvas or Window
+        BufferStrategy bs = this.getBufferStrategy(); // the mechanism with which to organize complex memory on a particular Canvas or Window
         // application draws to a single back buffer and then moves the contents to the front 
 
-        if(this.bs == null){ // if is not initialized
+        if(bs == null){ // if is not initialized
 
             this.createBufferStrategy(3);
             return;
 
         }
 
-        this.g = this.bs.getDrawGraphics();
+        Graphics g = bs.getDrawGraphics();
 
-        g.setColor(new Color(0, 100, 0));
-        g.fillRect(100, 100, 400, 400);        
-
-        g.dispose();
+        g.setColor(new Color(0, 0, 0));
+        g.fillRect(0, 0, WIDTH, WIDTH);
+        
+        tetra.render(g);
+        
+        g.dispose( );
         bs.show(); // display the drawn buffer
 
     }
 
     private void update(){
 
-
+        this.tetra.rotateZ(1);
+        this.tetra.rotateX(1);
 
     }
 
     //PUBLIC
+
+    public static final int WIDTH = 800;
+    public static final int HEIGHT = 600;
 
     public Display(){ // contructor
 
@@ -57,6 +60,11 @@ public class Display extends Canvas implements Runnable{
 
         this.setPreferredSize(size);
 
+        this.tetra = new Tetrahedron(
+        new MyPolygon(new MyPoint(0, 0, 0), new MyPoint(0, 100, 0), new MyPoint(100, 100, 0), new MyPoint(100, 0, 0)),
+        new MyPolygon(new MyPoint(0, 0, 0), new MyPoint(0, 0, -100), new MyPoint(0, 100, -100), new MyPoint(0, 100, 0)),
+        new MyPolygon(new MyPoint(100, 0, 0), new MyPoint(100, 0, -100), new MyPoint(100, 100, -100), new MyPoint(100, 100, 0)),
+        new MyPolygon(new MyPoint(0, 0, -100), new MyPoint(0, 100, -100), new MyPoint(100, 100, -100), new MyPoint(100, 0, -100)));
     }
 
     public static void main(String[] args){
@@ -130,10 +138,10 @@ public class Display extends Canvas implements Runnable{
 
                 deltaTime--;
 
+                render();
+                FPS++; // frame per seconds
+    
             }
-
-            render();
-            FPS++; // frame per seconds
 
             // display FPS
             if(System.currentTimeMillis() - timer > 1000){
